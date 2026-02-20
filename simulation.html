@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cash Conversion Cycle Simulator</title>
+  <style>
+    :root {
+      --bg: #f4f7f5;
+      --panel: #ffffff;
+      --ink: #1f2a24;
+      --muted: #5c6a62;
+      --accent: #1b7f5a;
+      --danger: #b03a2e;
+      --radius: 12px;
+      --shadow: 0 10px 24px rgba(18, 39, 28, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top right, #e8f5ef 0%, transparent 40%),
+        radial-gradient(circle at bottom left, #eef4f0 0%, transparent 45%),
+        var(--bg);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: 1040px;
+      margin: 32px auto;
+      padding: 0 16px 40px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.6rem, 2.4vw, 2.2rem);
+    }
+
+    .sub {
+      margin: 0 0 24px;
+      color: var(--muted);
+      max-width: 75ch;
+      line-height: 1.45;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+
+    .card {
+      background: var(--panel);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 1.1rem;
+    }
+
+    .formula {
+      background: #f8fbf9;
+      border: 1px solid #e5eee9;
+      border-radius: 10px;
+      padding: 10px 12px;
+      color: #2d4338;
+      font-size: 0.95rem;
+      margin-bottom: 14px;
+    }
+
+    .field { margin-bottom: 12px; }
+
+    .field label {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.92rem;
+      margin-bottom: 6px;
+      color: #2f3d35;
+    }
+
+    .field .hint {
+      color: var(--muted);
+      font-size: 0.84rem;
+      margin-top: 4px;
+    }
+
+    input[type="number"],
+    input[type="range"] {
+      width: 100%;
+    }
+
+    input[type="number"] {
+      border: 1px solid #cfdad3;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.95rem;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    input[type="range"] { accent-color: var(--accent); }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 110px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .kpi {
+      border: 1px solid #dce7e0;
+      background: #fbfdfc;
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .kpi .label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .kpi .value {
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .delta {
+      font-size: 0.86rem;
+      margin-top: 4px;
+    }
+
+    .delta.up { color: var(--danger); }
+    .delta.down { color: var(--accent); }
+    .delta.flat { color: var(--muted); }
+
+    .inline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      color: #2f3d35;
+      font-size: 0.9rem;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.35;
+      margin-top: 12px;
+    }
+
+    .back {
+      margin-bottom: 14px;
+    }
+
+    .back a {
+      color: #1b7f5a;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    @media (max-width: 640px) {
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <p class="back"><a href="index.html">Back to Main Page</a></p>
+    <h1>Cash Conversion Cycle Simulator</h1>
+    <p class="sub">
+      Adjust Average Days in Inventory (ADI), Average Days in Accounts Receivable (AR), and Average Days in Accounts Payable (AP) to see how changes affect the cash conversion cycle (CCC). Then estimate cash invested in operations and its annual carrying cost.
+    </p>
+
+    <section class="grid">
+      <article class="card">
+        <h2>1) CCC Components</h2>
+        <div class="formula"><strong>CCC = ADI + AR - AP</strong></div>
+
+        <div class="field">
+          <label for="adi">Average Days in Inventory (ADI) <span id="adiLabel">45</span></label>
+          <div class="row">
+            <input id="adi" type="range" min="0" max="180" step="1" value="45" />
+            <input id="adiNum" type="number" min="0" max="365" step="1" value="45" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="ar">Average Days in Accounts Receivable (AR) <span id="arLabel">30</span></label>
+          <div class="row">
+            <input id="ar" type="range" min="0" max="180" step="1" value="30" />
+            <input id="arNum" type="number" min="0" max="365" step="1" value="30" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="ap">Average Days in Accounts Payable (AP) <span id="apLabel">25</span></label>
+          <div class="row">
+            <input id="ap" type="range" min="0" max="180" step="1" value="25" />
+            <input id="apNum" type="number" min="0" max="365" step="1" value="25" />
+          </div>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi">
+            <div class="label">Cash Conversion Cycle (days)</div>
+            <div id="cccValue" class="value">50.00</div>
+            <div id="cccDelta" class="delta flat">No change vs baseline</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Baseline CCC (days)</div>
+            <div id="cccBase" class="value">50.00</div>
+          </div>
+        </div>
+
+        <p class="small">
+          Baseline uses initial values on page load. A +1 day change in ADI or AR increases CCC by 1 day; a +1 day change in AP decreases CCC by 1 day.
+        </p>
+      </article>
+
+      <article class="card">
+        <h2>2) Cash Invested in Operations</h2>
+        <div class="formula">
+          Amount Invested = Annual Unit Sales x Variable Cost/Unit x (CCC Days / 365)<br />
+          Cost of Investment = Amount Invested x Cost of Capital
+        </div>
+
+        <label class="inline" for="useComputedCcc">
+          <input id="useComputedCcc" type="checkbox" checked />
+          Use computed CCC from Section 1
+        </label>
+
+        <div class="field">
+          <label for="cccInput">CCC Days for cash investment model</label>
+          <input id="cccInput" type="number" min="-365" max="365" step="0.01" value="50" />
+          <div class="hint">Editable when checkbox is off.</div>
+        </div>
+
+        <div class="field">
+          <label for="annualSales">Annual Unit Sales</label>
+          <input id="annualSales" type="number" min="0" step="1" value="120000" />
+        </div>
+
+        <div class="field">
+          <label for="varCost">Variable Cost per Unit ($)</label>
+          <input id="varCost" type="number" min="0" step="0.01" value="18.50" />
+        </div>
+
+        <div class="field">
+          <label for="capitalCost">Cost of Capital (%)</label>
+          <input id="capitalCost" type="number" min="0" max="100" step="0.01" value="11" />
+        </div>
+
+        <div class="kpis">
+          <div class="kpi">
+            <div class="label">Amount of Cash Invested ($)</div>
+            <div id="cashInvested" class="value">0</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Annual Cost of Cash Invested ($)</div>
+            <div id="cashCost" class="value">0</div>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const fmtMoney = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 2
+    });
+
+    const ids = {
+      adi: document.getElementById("adi"),
+      ar: document.getElementById("ar"),
+      ap: document.getElementById("ap"),
+      adiNum: document.getElementById("adiNum"),
+      arNum: document.getElementById("arNum"),
+      apNum: document.getElementById("apNum"),
+      adiLabel: document.getElementById("adiLabel"),
+      arLabel: document.getElementById("arLabel"),
+      apLabel: document.getElementById("apLabel"),
+      cccValue: document.getElementById("cccValue"),
+      cccBase: document.getElementById("cccBase"),
+      cccDelta: document.getElementById("cccDelta"),
+      useComputedCcc: document.getElementById("useComputedCcc"),
+      cccInput: document.getElementById("cccInput"),
+      annualSales: document.getElementById("annualSales"),
+      varCost: document.getElementById("varCost"),
+      capitalCost: document.getElementById("capitalCost"),
+      cashInvested: document.getElementById("cashInvested"),
+      cashCost: document.getElementById("cashCost")
+    };
+
+    function n(value) {
+      const parsed = parseFloat(value);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function syncPair(rangeEl, numberEl, labelEl, value) {
+      rangeEl.value = value;
+      numberEl.value = value;
+      labelEl.textContent = value;
+    }
+
+    const baseline = {
+      adi: n(ids.adi.value),
+      ar: n(ids.ar.value),
+      ap: n(ids.ap.value)
+    };
+
+    const baselineCcc = baseline.adi + baseline.ar - baseline.ap;
+    ids.cccBase.textContent = baselineCcc.toFixed(2);
+
+    function computeCcc() {
+      return n(ids.adi.value) + n(ids.ar.value) - n(ids.ap.value);
+    }
+
+    function updateCccDisplay() {
+      const ccc = computeCcc();
+      ids.cccValue.textContent = ccc.toFixed(2);
+
+      const delta = ccc - baselineCcc;
+      ids.cccDelta.className = "delta";
+
+      if (Math.abs(delta) < 0.0001) {
+        ids.cccDelta.textContent = "No change vs baseline";
+        ids.cccDelta.classList.add("flat");
+      } else if (delta > 0) {
+        ids.cccDelta.textContent = "CCC increased by " + delta.toFixed(2) + " days";
+        ids.cccDelta.classList.add("up");
+      } else {
+        ids.cccDelta.textContent = "CCC decreased by " + Math.abs(delta).toFixed(2) + " days";
+        ids.cccDelta.classList.add("down");
+      }
+
+      if (ids.useComputedCcc.checked) {
+        ids.cccInput.value = ccc.toFixed(2);
+      }
+
+      updateCashModel();
+    }
+
+    function updateCashModel() {
+      const cccDays = n(ids.cccInput.value);
+      const annualSales = n(ids.annualSales.value);
+      const varCost = n(ids.varCost.value);
+      const costOfCapital = n(ids.capitalCost.value) / 100;
+
+      const amountInvested = annualSales * varCost * (cccDays / 365);
+      const costInvested = amountInvested * costOfCapital;
+
+      ids.cashInvested.textContent = fmtMoney.format(amountInvested);
+      ids.cashCost.textContent = fmtMoney.format(costInvested);
+    }
+
+    function attachPair(rangeEl, numberEl, labelEl) {
+      rangeEl.addEventListener("input", () => {
+        syncPair(rangeEl, numberEl, labelEl, n(rangeEl.value));
+        updateCccDisplay();
+      });
+
+      numberEl.addEventListener("input", () => {
+        syncPair(rangeEl, numberEl, labelEl, n(numberEl.value));
+        updateCccDisplay();
+      });
+    }
+
+    attachPair(ids.adi, ids.adiNum, ids.adiLabel);
+    attachPair(ids.ar, ids.arNum, ids.arLabel);
+    attachPair(ids.ap, ids.apNum, ids.apLabel);
+
+    ids.useComputedCcc.addEventListener("change", () => {
+      ids.cccInput.disabled = ids.useComputedCcc.checked;
+      updateCccDisplay();
+    });
+
+    [ids.cccInput, ids.annualSales, ids.varCost, ids.capitalCost].forEach((el) => {
+      el.addEventListener("input", updateCashModel);
+    });
+
+    ids.cccInput.disabled = ids.useComputedCcc.checked;
+    updateCccDisplay();
+  </script>
+</body>
+</html>
