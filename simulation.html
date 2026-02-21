@@ -165,6 +165,24 @@
       margin-top: 12px;
     }
 
+    .actions {
+      margin-top: 14px;
+    }
+
+    .btn-reset {
+      border: 1px solid #c8d7cf;
+      background: #f8fbf9;
+      color: #274036;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .btn-reset:hover {
+      background: #eef6f1;
+    }
+
     .back {
       margin-bottom: 14px;
     }
@@ -233,6 +251,10 @@
         <p class="small">
           Baseline uses initial values on page load. A +1 day change in ADI or AR increases CCC by 1 day; a +1 day change in AP decreases CCC by 1 day.
         </p>
+
+        <div class="actions">
+          <button id="resetAll" type="button" class="btn-reset">Reset</button>
+        </div>
       </article>
 
       <article class="card">
@@ -308,7 +330,8 @@
       varCost: document.getElementById("varCost"),
       capitalCost: document.getElementById("capitalCost"),
       cashInvested: document.getElementById("cashInvested"),
-      cashCost: document.getElementById("cashCost")
+      cashCost: document.getElementById("cashCost"),
+      resetAll: document.getElementById("resetAll")
     };
 
     function n(value) {
@@ -326,6 +349,17 @@
       adi: n(ids.adi.value),
       ar: n(ids.ar.value),
       ap: n(ids.ap.value)
+    };
+
+    const defaults = {
+      adi: n(ids.adi.defaultValue),
+      ar: n(ids.ar.defaultValue),
+      ap: n(ids.ap.defaultValue),
+      useComputedCcc: ids.useComputedCcc.defaultChecked,
+      cccInput: n(ids.cccInput.defaultValue),
+      annualSales: n(ids.annualSales.defaultValue),
+      varCost: n(ids.varCost.defaultValue),
+      capitalCost: n(ids.capitalCost.defaultValue)
     };
 
     const baselineCcc = baseline.adi + baseline.ar - baseline.ap;
@@ -373,6 +407,19 @@
       ids.cashCost.textContent = fmtMoney.format(costInvested);
     }
 
+    function resetAllValues() {
+      syncPair(ids.adi, ids.adiNum, ids.adiLabel, defaults.adi);
+      syncPair(ids.ar, ids.arNum, ids.arLabel, defaults.ar);
+      syncPair(ids.ap, ids.apNum, ids.apLabel, defaults.ap);
+      ids.useComputedCcc.checked = defaults.useComputedCcc;
+      ids.cccInput.value = defaults.cccInput;
+      ids.annualSales.value = defaults.annualSales;
+      ids.varCost.value = defaults.varCost;
+      ids.capitalCost.value = defaults.capitalCost;
+      ids.cccInput.disabled = ids.useComputedCcc.checked;
+      updateCccDisplay();
+    }
+
     function attachPair(rangeEl, numberEl, labelEl) {
       rangeEl.addEventListener("input", () => {
         syncPair(rangeEl, numberEl, labelEl, n(rangeEl.value));
@@ -397,6 +444,7 @@
     [ids.cccInput, ids.annualSales, ids.varCost, ids.capitalCost].forEach((el) => {
       el.addEventListener("input", updateCashModel);
     });
+    ids.resetAll.addEventListener("click", resetAllValues);
 
     ids.cccInput.disabled = ids.useComputedCcc.checked;
     updateCccDisplay();
