@@ -239,7 +239,7 @@
         <h2>2) Cash Invested in Operations</h2>
         <div class="formula">
           Amount Invested = Annual Unit Sales x Variable Cost/Unit x (CCC Days / 365)<br />
-          Cost of Investment = Amount Invested x (Cost of Capital x CCC Days / 360)
+          Cost of Investment = Amount Invested x Cost of Capital
         </div>
 
         <label class="inline" for="useComputedCcc">
@@ -367,7 +367,7 @@
       const costOfCapital = n(ids.capitalCost.value) / 100;
 
       const amountInvested = annualSales * varCost * (cccDays / 365);
-      const costInvested = amountInvested * (costOfCapital * (cccDays / 360));
+      const costInvested = amountInvested * costOfCapital;
 
       ids.cashInvested.textContent = fmtMoney.format(amountInvested);
       ids.cashCost.textContent = fmtMoney.format(costInvested);
