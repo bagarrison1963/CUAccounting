@@ -194,6 +194,48 @@
       font-weight: 600;
     }
 
+    .chart-card {
+      margin-top: 16px;
+    }
+
+    .chart-row {
+      margin-top: 12px;
+    }
+
+    .chart-label {
+      font-size: 0.88rem;
+      color: #355247;
+      margin-bottom: 6px;
+    }
+
+    .track {
+      position: relative;
+      height: 28px;
+      border: 1px solid #d7e4dc;
+      background: #f8fbf9;
+      border-radius: 8px;
+      overflow: visible;
+    }
+
+    .seg {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #173328;
+      white-space: nowrap;
+      border-radius: 6px;
+    }
+
+    .seg.adi { background: #9dd7be; }
+    .seg.ar { background: #c2ead8; }
+    .seg.ap { background: #f3d79d; }
+    .seg.ccc { background: #b8d6f2; }
+    .seg.ccc-neg { background: #f3c0b9; }
+
     @media (max-width: 640px) {
       .row { grid-template-columns: 1fr; }
     }
@@ -302,6 +344,27 @@
         </div>
       </article>
     </section>
+
+    <section class="card chart-card">
+      <h2>3) CCC Structure Graph</h2>
+      <p class="small">Top row shows ADI + AR. Bottom row shows AP + CCC on the same scale.</p>
+
+      <div class="chart-row">
+        <div id="topLabel" class="chart-label">ADI + AR</div>
+        <div class="track">
+          <div id="adiSeg" class="seg adi"></div>
+          <div id="arSeg" class="seg ar"></div>
+        </div>
+      </div>
+
+      <div class="chart-row">
+        <div id="bottomLabel" class="chart-label">AP + CCC</div>
+        <div class="track">
+          <div id="apSeg" class="seg ap"></div>
+          <div id="cccSeg" class="seg ccc"></div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <script>
@@ -331,7 +394,13 @@
       capitalCost: document.getElementById("capitalCost"),
       cashInvested: document.getElementById("cashInvested"),
       cashCost: document.getElementById("cashCost"),
-      resetAll: document.getElementById("resetAll")
+      resetAll: document.getElementById("resetAll"),
+      topLabel: document.getElementById("topLabel"),
+      bottomLabel: document.getElementById("bottomLabel"),
+      adiSeg: document.getElementById("adiSeg"),
+      arSeg: document.getElementById("arSeg"),
+      apSeg: document.getElementById("apSeg"),
+      cccSeg: document.getElementById("cccSeg")
     };
 
     function n(value) {
@@ -392,6 +461,7 @@
       }
 
       updateCashModel();
+      updateGraph();
     }
 
     function updateCashModel() {
@@ -405,6 +475,41 @@
 
       ids.cashInvested.textContent = fmtMoney.format(amountInvested);
       ids.cashCost.textContent = fmtMoney.format(costInvested);
+    }
+
+    function setSeg(el, left, width, text, cls) {
+      el.className = "seg " + cls;
+      el.style.left = left.toFixed(4) + "%";
+      el.style.width = Math.max(0, width).toFixed(4) + "%";
+      el.textContent = width > 9 ? text : "";
+      el.title = text;
+    }
+
+    function updateGraph() {
+      const adi = n(ids.adi.value);
+      const ar = n(ids.ar.value);
+      const ap = n(ids.ap.value);
+      const total = adi + ar;
+      const ccc = total - ap;
+      const scale = Math.max(total, ap, 1);
+
+      const adiPct = (adi / scale) * 100;
+      const arPct = (ar / scale) * 100;
+      const apPct = (ap / scale) * 100;
+      const cccPct = (ccc / scale) * 100;
+
+      setSeg(ids.adiSeg, 0, adiPct, "ADI: " + adi.toFixed(2), "adi");
+      setSeg(ids.arSeg, adiPct, arPct, "AR: " + ar.toFixed(2), "ar");
+      setSeg(ids.apSeg, 0, apPct, "AP: " + ap.toFixed(2), "ap");
+
+      if (ccc >= 0) {
+        setSeg(ids.cccSeg, apPct, cccPct, "CCC: " + ccc.toFixed(2), "ccc");
+      } else {
+        setSeg(ids.cccSeg, apPct + cccPct, Math.abs(cccPct), "CCC: " + ccc.toFixed(2), "ccc-neg");
+      }
+
+      ids.topLabel.textContent = "ADI + AR = " + total.toFixed(2) + " days";
+      ids.bottomLabel.textContent = "AP + CCC = " + ap.toFixed(2) + " + " + ccc.toFixed(2) + " = " + total.toFixed(2) + " days";
     }
 
     function resetAllValues() {
