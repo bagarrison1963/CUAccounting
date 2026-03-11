@@ -31,6 +31,17 @@
         margin: 0 auto;
         padding: 28px 20px 40px;
       }
+      .back-link {
+        display: inline-block;
+        margin-bottom: 12px;
+        color: var(--accent);
+        font-family: "Verdana", "Tahoma", sans-serif;
+        font-size: 14px;
+        text-decoration: none;
+      }
+      .back-link:hover {
+        text-decoration: underline;
+      }
       header {
         display: flex;
         flex-wrap: wrap;
@@ -145,6 +156,7 @@
   </head>
   <body>
     <div class="wrap">
+      <a class="back-link" href="index.html">Back to Main Page</a>
       <header>
         <h1>Break-Even Simulator</h1>
         <div class="sub">Single-product CVP model with instant feedback</div>
@@ -375,7 +387,20 @@
         ctx.fillText("Dollars ($)", 0, 0);
         ctx.restore();
 
+        // x-axis ticks
+        ctx.textAlign = "center";
+        for (let i = 0; i <= 5; i++) {
+          const units = (maxUnits / 5) * i;
+          const xx = padding.left + (plotW / 5) * i;
+          ctx.beginPath();
+          ctx.moveTo(xx, h - padding.bottom);
+          ctx.lineTo(xx, h - padding.bottom + 6);
+          ctx.stroke();
+          ctx.fillText(Math.round(units).toLocaleString(), xx, h - padding.bottom + 20);
+        }
+
         // y-axis ticks
+        ctx.textAlign = "start";
         for (let i = 0; i <= 5; i++) {
           const val = (yMax / 5) * (5 - i);
           const yy = padding.top + (plotH / 5) * i;
