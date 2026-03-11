@@ -64,6 +64,12 @@
     a.button:hover {
       background: var(--accent-dark);
     }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
   </style>
 </head>
 <body>
@@ -72,7 +78,10 @@
     <p>
       Launch `ccc-sim` to model Average Days in Inventory, Accounts Receivable, and Accounts Payable, and to estimate the amount and cost of cash invested in operations.
     </p>
-    <a class="button" href="ccc-sim.html">Open ccc-sim</a>
+    <div class="button-row">
+      <a class="button" href="ccc-sim.html">Open ccc-sim</a>
+      <a class="button" href="break-even-sim.html">Break-Even Simulation</a>
+    </div>
   </main>
 </body>
 </html>
