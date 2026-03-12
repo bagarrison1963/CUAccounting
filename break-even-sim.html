@@ -360,10 +360,8 @@
 
         const maxRevenue = pricePer * maxUnits;
         const maxCost = fixedCost + varPer * maxUnits;
-        const maxPricePer = Number(price.max);
-        const maxFixedCost = Number(fixed.max);
-        const maxVarPer = Number(variable.max);
-        const yMax = Math.max(maxPricePer * maxUnits, maxFixedCost + maxVarPer * maxUnits, maxFixedCost * 1.2);
+        const defaultYMax = 300000;
+        const yMax = Math.max(defaultYMax, maxRevenue, maxCost);
 
         const padding = { left: 60, right: 20, top: 20, bottom: 50 };
         const plotW = w - padding.left - padding.right;
@@ -371,6 +369,23 @@
 
         const x = (u) => padding.left + (u / maxUnits) * plotW;
         const y = (val) => padding.top + (1 - val / yMax) * plotH;
+        const revenueAt = (units) => pricePer * units;
+        const costAt = (units) => fixedCost + varPer * units;
+
+        function shadeBetween(startUnits, endUnits, fillStyle) {
+          if (endUnits <= startUnits) {
+            return;
+          }
+
+          ctx.fillStyle = fillStyle;
+          ctx.beginPath();
+          ctx.moveTo(x(startUnits), y(revenueAt(startUnits)));
+          ctx.lineTo(x(endUnits), y(revenueAt(endUnits)));
+          ctx.lineTo(x(endUnits), y(costAt(endUnits)));
+          ctx.lineTo(x(startUnits), y(costAt(startUnits)));
+          ctx.closePath();
+          ctx.fill();
+        }
 
         // grid
         ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--grid");
@@ -391,6 +406,17 @@
         ctx.lineTo(padding.left, h - padding.bottom);
         ctx.lineTo(w - padding.right, h - padding.bottom);
         ctx.stroke();
+
+        // shaded zones
+        if (Number.isFinite(beUnits)) {
+          const visibleBreakEven = Math.min(Math.max(beUnits, 0), maxUnits);
+          shadeBetween(0, visibleBreakEven, "rgba(184, 92, 43, 0.18)");
+          if (beUnits < maxUnits) {
+            shadeBetween(visibleBreakEven, maxUnits, "rgba(31, 109, 78, 0.16)");
+          }
+        } else {
+          shadeBetween(0, maxUnits, "rgba(184, 92, 43, 0.18)");
+        }
 
         // revenue line
         ctx.strokeStyle = "#1f6d4e";
