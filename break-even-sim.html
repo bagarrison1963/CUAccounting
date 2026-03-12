@@ -361,7 +361,7 @@
 
         const maxRevenue = pricePer * maxUnits;
         const maxCost = fixedCost + varPer * maxUnits;
-        const yMax = Math.max(maxRevenue, maxCost, fixedCost * 1.2);
+        const yMax = Math.max(maxRevenue + fixedCost, maxCost, fixedCost * 1.2);
 
         const padding = { left: 60, right: 20, top: 20, bottom: 50 };
         const plotW = w - padding.left - padding.right;
